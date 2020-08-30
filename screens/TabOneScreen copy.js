@@ -1,47 +1,23 @@
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import * as Permissions from 'expo-permissions';
-import React, { useState, useEffect, useRef, Component } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Text, View, Button, Platform } from 'react-native';
 
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
-    shouldPlaySound: true,
+    shouldPlaySound: false,
     shouldSetBadge: false,
   }),
 });
 
-
-
-const month = new Date().getMonth();
-
-Notifications.scheduleNotificationAsync({
-  content: {
-    title: "calendar trigger august 29!",
-    body: `${month}`,
-  },
-
-  trigger: {
-    repeats: false,
-    
-    hour: 21,
-    minute: 40,
-    second: 3,
-
-  }
-
-});
-
-
 export default function App() {
-
   const [expoPushToken, setExpoPushToken] = useState('');
   const [notification, setNotification] = useState(false);
   const notificationListener = useRef();
   const responseListener = useRef();
-
 
   useEffect(() => {
     registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
@@ -65,25 +41,23 @@ export default function App() {
 
   const data = [9, 10, 11]
 
-  function PushToday () {
+  function PushToday() {
     let todayDate = new Date();
     const yesterday = new Date();
-     yesterday.setDate(todayDate.getDate() - 1);
+    yesterday.setDate(todayDate.getDate() - 1);
     const hoursNow = todayDate.getHours()
     const minNow = todayDate.getMinutes()
     const dayOfMonth = todayDate.getDate();
-    if (data[0] === dayOfMonth - 1 && hoursNow == 15 && minNow == 45) {    
+    if (data[0] === dayOfMonth - 1 && hoursNow == 15 && minNow == 45) {
       return `${hoursNow}${minNow}`
     } else {
       return yesterday.toDateString()
     }
 
+
+
+
   }
-
-
-
-
-
 
   return (
     <View
@@ -98,102 +72,19 @@ export default function App() {
         <Text>Body: {notification && notification.request.content.body}</Text>
         <Text>Data: {notification && JSON.stringify(notification.request.content.data)}</Text>
       </View>
-      
+
       <Text>
         <PushToday />
       </Text>
       <Button
         title="Press to Send Notification"
         onPress={async () => {
-
-          await Notifications.scheduleNotificationAsync(expoPushToken);
+          await sendPushNotification(expoPushToken);
         }}
       />
     </View>
   );
 }
-
-
-
-
-
-
-
-const content = { title: 'I am a one, hasty notification.' };
-
-// Notifications.scheduleNotificationAsync({ content, trigger: null });
-
-
-interface CalendarNotificationTrigger {
-  type: 'calendar';
-  repeats: boolean;
-  dateComponents: {
-    era?: number;
-    year?: number;
-    month?: number;
-    day?: number;
-    hour?: number;
-    minute?: number;
-    second?: number;
-    weekday?: number;
-    weekdayOrdinal?: number;
-    quarter?: number;
-    weekOfMonth?: number;
-    weekOfYear?: number;
-    yearForWeekOfYear?: number;
-    nanosecond?: number;
-    isLeapMonth: boolean;
-    timeZone?: string;
-    calendar?: string;
-  };
-}
-
-
-const NewCal = (makeCal: CalendarNotificationTrigger) => {
-  const month = new Date().getMonth();
-  const dayOfMonth = new Date().getDate();
-
-  if (month == makeCal.dateComponents.month) {
-    console.log("it is ok")
-    console.log(typeof month)
-  } else {
-    console.log('noasad')
-  }
-}
-
-
-const trigger = {
-  type: 'calendar',
-  repeats: false,
-  dateComponents: {
-    hour: 20,
-    month: 7,
-    
-  }
-}
-
-NewCal(trigger);
-
-
-
-
-
-
-
-// async function sendPushNotification(expoPushToken) {
-//   await Notifications.scheduleNotificationAsync({
-//     content: {
-//       title: "You've got mail! 📬",
-//       body: 'Here is the notification body',
-//       data: { data: 'goes here' },
-//     },
-//     trigger: { seconds: 2 },
-//   });
-// }
-
-
-
-
 
 
 
